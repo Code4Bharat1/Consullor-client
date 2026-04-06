@@ -274,15 +274,11 @@ export default function Login() {
 
             {/* LEFT */}
             <div className="hidden md:flex w-1/2 bg-[#3E5B3F] text-[#E6DEB5] flex-col items-center justify-center text-center px-12 py-8">
-              <img src="/logo.png" className="w-[400px] mb-8" />
+              <img src="/logo.png" className="w-[600px] mb-8" />
 
-              <h1 className="text-5xl font-bold leading-tight">
-                AI Career Consultant
-              </h1>
-
-              <p className="text-base mt-6 max-w-[320px] leading-relaxed">
+              <h1 className="text-xl mt-6 max-w-[320px] leading-relaxed">
                 Smart career guidance powered by AI. Discover the right path based on your skills and future goals.
-              </p>
+              </h1>
             </div>
 
             {/* RIGHT */}
@@ -290,7 +286,7 @@ export default function Login() {
 
               <div className="absolute inset-0 border-4 border-[#3E5B3F] pointer-events-none"></div>
 
-              <h2 className="text-5xl font-bold text-[#3E5B3F] mb-4 text-center md:text-left">
+              <h2 className="text-4xl font-bold text-[#3E5B3F] mb-4 text-center md:text-left">
                 Admin Login
               </h2>
 

@@ -6,102 +6,150 @@ import toast from "react-hot-toast";
 
 export default function CounselorLogin() {
   const router = useRouter();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
-
-
-  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ LOGIN
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const res = await fetch(`${API}/counselor/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       const data = await res.json();
-
       if (res.ok) {
         toast.success("Login successful!");
-
         localStorage.setItem("counselor", JSON.stringify(data.counselor));
         router.push("/counselor/dashboard");
-
       } else {
         toast.error(data.message);
       }
-
     } catch (error) {
       console.log(error);
       toast.error("Server error");
-     }
-
+    }
     setLoading(false);
   };
 
-
-
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="w-full min-h-screen flex flex-col md:flex-row">
 
-      {/* 🔥 LOGIN BOX */}
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-[#5E0006]">
-          Counselor Login
-        </h2>
+      {/* LEFT GREEN PANEL */}
+      <div className="hidden md:flex relative w-[45%] bg-[#1a6e42] overflow-hidden flex-col justify-between px-12 py-14">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            onChange={handleChange}
-            className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#5E0006]"
-          />
+        {/* Curve */}
+        <div
+          className="absolute bg-white"
+          style={{
+            top: "-5%",
+            right: "-100px",
+            width: "220px",
+            height: "115%",
+            borderRadius: "50% 0 0 50%",
+          }}
+        />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-            onChange={handleChange}
-            className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-[#5E0006]"
-          />
+        {/* Logo */}
+        <div className="relative z-10">
+          <img src="/logo.png" alt="logo" className="w-[500px]" />
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#5E0006] text-white p-3 rounded-lg hover:bg-[#7a0008]"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+        {/* Text */}
+        <div className="relative z-10 pr-20">
+          <h1 className="text-white text-4xl font-extrabold leading-tight">
+            Welcome Back!
+          </h1>
+          <p className="text-white/80 text-lg mt-4 leading-relaxed">
+            Smart career guidance powered by AI. Discover the right path based on your skills and future goals.
+          </p>
+        </div>
+
+        <div></div>
       </div>
 
-      
+      {/* RIGHT SIDE */}
+      <div className="flex-1 flex flex-col">
 
+        {/* Mobile Top */}
+        <div className="md:hidden relative bg-[#1a6e42] w-full pb-20">
+          <div
+            className="absolute bottom-0 left-0 w-full bg-white"
+            style={{ height: "90px", borderRadius: "50% 50% 0 0" }}
+          />
+          <div className="relative z-10 flex justify-center pt-10">
+            <img src="/logo.png" alt="logo" className="w-40" />
+          </div>
+        </div>
+
+        {/* FORM */}
+        <div className="flex-1 flex items-center justify-center px-6 md:px-16 py-12 bg-white">
+          <div className="w-full max-w-md">
+
+            {/* Heading */}
+            <h2
+              className="text-[#1a6e42] font-extrabold text-5xl text-center md:text-left mb-2"
+              style={{ fontFamily: "'Georgia', serif", fontStyle: "italic" }}
+            >
+              welcome
+            </h2>
+
+            <p className="text-gray-400 text-base text-center md:text-left mb-10">
+              Login in to your account to continue
+            </p>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+              {/* Email */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  onChange={handleChange}
+                  className="w-full px-6 py-3 rounded-full bg-[#d4ede0] text-gray-700 text-sm outline-none focus:bg-[#bfe0ce] transition"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  onChange={handleChange}
+                  className="w-full px-6 py-3 rounded-full bg-[#d4ede0] text-gray-700 text-sm outline-none focus:bg-[#bfe0ce] transition"
+                />
+              </div>
+
+              {/* Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#1a6e42] text-white py-3 rounded-full text-sm font-bold tracking-widest hover:bg-[#155934] active:scale-95 transition-all disabled:opacity-60"
+              >
+                {loading ? "Logging in..." : "LOG IN"}
+              </button>
+
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
