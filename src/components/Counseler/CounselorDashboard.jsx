@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { LogOut, User, Menu, LayoutDashboard, Users, FileText, BarChart3, Settings } from "lucide-react";
 import toast from "react-hot-toast";
 import Students from "../Counseler/Students";
+import Assessments from "../Counseler/Assessments";
+import Reports from "../Counseler/Reports";
 
 export default function CounselorDashboard() {
   const router = useRouter();
@@ -154,6 +156,14 @@ const handleProfileSubmit = async () => {
   }
 };
 
+const [dashboardData, setDashboardData] = useState({
+  totalStudents: 0,
+  assessmentSentCount: 0,
+  pendingStudentsCount: 0,
+  pendingAssessments: [],
+  recentActivity: [],
+});
+
 useEffect(() => {
   const stored = localStorage.getItem("counselor");
 
@@ -162,6 +172,8 @@ useEffect(() => {
   } else {
     const user = JSON.parse(stored);
     setCounselor(user);
+
+    fetchDashboard();
 
     if (user.isFirstLogin) {
       setShowChangePassword(true);
@@ -176,56 +188,117 @@ useEffect(() => {
       router.push("/counselor/login");
     };
 
-    
+    const [mobileOpen, setMobileOpen] = useState(false);
+const fetchDashboard = async () => {
+  const counselor = JSON.parse(localStorage.getItem("counselor"));
+
+  const res = await fetch(
+    `http://localhost:5000/api/assessment/summary/${counselor._id}`
+  );
+
+  const data = await res.json();
+  setDashboardData(data);
+};
+
+useEffect(() => {
+  fetchDashboard();
+
+  const interval = setInterval(() => {
+    fetchDashboard();
+  }, 3000); // every 3 sec
+
+  return () => clearInterval(interval);
+}, []);
 
 
 return (
   <>
-    <div className="min-h-screen flex flex-col">
-
+<div className="min-h-screen flex flex-col overflow-x-hidden">
       {/* 🔥 NAVBAR */}
-      <nav className="w-full h-16 bg-[#0000FF] text-white flex items-center justify-between px-6">
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+      <nav className="w-full h-16 bg-[#1a6e42] text-white flex items-center justify-between px-4 md:px-6">
 
-        <div className="flex items-center gap-4">
-          <span className="text-sm">
-            {counselor?.email}
-          </span>
+  {/* LEFT */}
+  <div className="flex items-center gap-3">
+    
+    {/* MOBILE MENU BUTTON */}
+    <button
+      className="md:hidden"
+      onClick={() => setMobileOpen(true)}
+    >
+      <Menu />
+    </button>
 
-          <div className="w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center">
-            <User size={18} />
-          </div>
+    <h1 className="text-lg font-semibold text-[#E6DEB5]">
+      Dashboard
+    </h1>
+  </div>
 
-        </div>
-      </nav>
+  {/* RIGHT */}
+  <div className="flex items-center gap-3 md:gap-4">
+    <span className="text-xs md:text-sm text-[#E6DEB5] truncate max-w-[120px] md:max-w-none">
+      {counselor?.email}
+    </span>
+
+    <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-indigo-500 flex items-center justify-center">
+      <User size={18} />
+    </div>
+  </div>
+</nav>
 
       {/*  BODY */}
-      <div className="flex">
-  <aside
-      className={`${
-        open ? "w-64" : "w-16"
-      } bg-[#0000FF] h-[calc(100vh-64px)] p-4 transition-all duration-300 flex flex-col`}
-    >
-      {/* TOGGLE */}
-      <button onClick={() => setOpen(!open)} className="mb-6 text-white hover:bg-[#0041C2]  ">
-        <Menu />
-      </button>
+     <div className="flex relative">
+  <>
+  {/* 🔴 MOBILE OVERLAY */}
+  {mobileOpen && (
+    <div
+      className="fixed inset-0 bg-black/50 z-40 md:hidden"
+      onClick={() => setMobileOpen(false)}
+    />
+  )}
 
-      {/* MENU */}
-      <ul className="space-y-3">
+  {/* SIDEBAR */}
+  <aside
+    className={`
+      fixed md:static top-0 left-0 z-50
+      h-full md:h-[calc(100vh-64px)]
+      bg-[#1a6e42] p-4 flex flex-col
+      transition-all duration-300
+
+      ${mobileOpen ? "w-64 translate-x-0" : "-translate-x-full md:translate-x-0"}
+      ${open ? "md:w-64" : "md:w-16"}
+    `}
+  >
+    {/* CLOSE BUTTON (MOBILE) */}
+    <button
+      className="md:hidden text-white mb-4"
+      onClick={() => setMobileOpen(false)}
+    >
+      ✕
+    </button>
+
+    {/* TOGGLE DESKTOP */}
+    <button
+      onClick={() => setOpen(!open)}
+      className="mb-6 text-white hidden md:block"
+    >
+      <Menu />
+    </button>
+
+    {/* MENU */}
+    <ul className="space-y-3">
         {menuItems.map((item) => (
-          <li key={item.name} className="relative group">
-           <button
+          <li key={item.name} className="relative group pointer-events-none">
+             <button
               onClick={() => setActive(item.name)}
               className={`w-full flex items-center 
               ${open ? "gap-3 px-3 justify-start" : "justify-center"} 
-              py-3 rounded-lg transition
+              py-3 rounded-lg transition pointer-events-auto
               ${
                 active === item.name
-                  ? "bg-white text-[#0000FF] font-semibold"
-                  : "text-white hover:bg-[#0041C2]"
-                 }`}
-                      >
+                  ? "bg-white text-[#1a6e42] font-semibold"
+                  : "text-[#E6DEB5] hover:bg-[#155835]"
+              }`}
+            >
             {/* ICON */}
             <span className={`${open ? "" : "flex justify-center w-full"}`}>
               {item.icon}
@@ -245,20 +318,122 @@ return (
         ))}
       </ul>
 
-      {/*  LOGOUT BUTTON */}
-      {open && (
-        <button
-          onClick={handleLogout}
-          className="mt-auto flex items-center gap-2 bg-red-500 px-3 py-2 rounded-lg text-white hover:bg-red-600 transition"
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
-      )}
-    </aside>
-         <main className="flex-1 bg-gray-100 p-5">
-  {active === "Students" && <Students />}
-</main>
+    {/* LOGOUT */}
+    {open && (
+      <button
+        onClick={handleLogout}
+        className="mt-auto flex items-center gap-2 bg-red-500 px-3 py-2 rounded-lg text-white hover:bg-red-600"
+      >
+        <LogOut size={18} />
+        Logout
+      </button>
+    )}
+  </aside>
+</>
+      <main className="flex-1 bg-gray-100 p-4 md:p-5 overflow-x-hidden">
+
+          {active === "Dashboard" && (
+          <div className="space-y-6">
+
+            {/* 🔥 TOP CARDS */}
+            <div className="grid grid-cols-3 gap-4">
+              
+              <div className="bg-white p-5 rounded-lg shadow">
+                <h3 className="text-gray-500 text-sm">Total Students</h3>
+                <p className="text-2xl font-bold mt-2">
+                 {dashboardData?.totalStudents || 0}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-lg shadow">
+                <h3 className="text-gray-500 text-sm">Assessments Sent</h3>
+                <p className="text-2xl font-bold mt-2">
+                  {dashboardData?.assessmentSentCount || 0}
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-lg shadow">
+                <h3 className="text-gray-500 text-sm">Pending Students</h3>
+                <p className="text-2xl font-bold mt-2">
+                  {dashboardData?.pendingStudentsCount || 0}
+                </p>
+              </div>
+
+            </div>
+
+            {/* 🔥 PENDING STUDENTS TABLE */}
+            <div className="bg-white p-5 rounded-lg shadow overflow-hidden">
+  <h2 className="text-lg font-semibold mb-4">
+    Pending Assessments
+  </h2>
+
+  {/* SCROLL WRAPPER */}
+  <div className="overflow-x-auto">
+    <table className="min-w-[600px] w-full text-sm border-collapse">
+
+      {/* HEADER */}
+      <thead className="bg-gray-200">
+        <tr>
+          <th className="px-4 py-2 text-left whitespace-nowrap">Name</th>
+          <th className="px-4 py-2 text-left whitespace-nowrap">Email</th>
+          <th className="px-4 py-2 text-left whitespace-nowrap">Status</th>
+        </tr>
+      </thead>
+
+      {/* BODY */}
+      <tbody>
+        {dashboardData?.pendingAssessments?.map((s) => (
+          <tr key={s._id} className="border-t">
+            <td className="px-4 py-2 whitespace-nowrap">{s.name}</td>
+
+            <td className="px-4 py-2 truncate max-w-[180px]">
+              {s.email}
+            </td>
+
+            <td className="px-4 py-2 whitespace-nowrap text-blue-500">
+              In Progress
+            </td>
+          </tr>
+        ))}
+
+        {dashboardData?.pendingAssessments?.length === 0 && (
+          <tr>
+            <td colSpan="3" className="text-center py-4">
+              No pending students
+            </td>
+          </tr>
+        )}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+            {/* 🔥 RECENT ACTIVITY */}
+            <div className="bg-white p-5 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">
+                Recent Activity
+              </h2>
+
+              <ul className="space-y-2 text-sm text-gray-600">
+                {dashboardData?.recentActivity?.length > 0 ? (
+                  dashboardData.recentActivity.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))
+                ) : (
+                  <li>No recent activity</li>
+                )}
+              </ul>
+            </div>
+
+          </div>
+          )}
+
+
+        {active === "Students" && <Students />}
+        {active === "Assessments" && <Assessments />}
+        {active === "Reports" && <Reports />}
+      </main>
       </div>
     </div>
 

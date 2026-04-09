@@ -50,25 +50,23 @@ export default function CounselorLogin() {
         <div
           className="absolute bg-white"
           style={{
-            top: "-5%",
-            right: "-100px",
-            width: "220px",
-            height: "115%",
-            borderRadius: "50% 0 0 50%",
+            // top: "-5%",
+            // right: "-520px",
+            // width: "700px",
+            // height: "120%",
+            // borderRadius: "50% 0 0 50%",
+            background: "#1a6e42"
           }}
         />
 
         {/* Logo */}
-        <div className="relative z-10">
-          <img src="/logo.png" alt="logo" className="w-[500px]" />
+              <div className="relative z-10 flex justify-center items-start">
+          <img src="/logo.png" alt="logo" className="w-[580px] object-contain" />
         </div>
 
         {/* Text */}
-        <div className="relative z-10 pr-20">
-          <h1 className="text-white text-4xl font-extrabold leading-tight">
-            Welcome Back!
-          </h1>
-          <p className="text-white/80 text-lg mt-4 leading-relaxed">
+        <div className="relative " style={{ fontFamily: "'Georgia', serif", fontStyle: "italic" }}>
+          <p className="text-[#E6DEB5] text-2xl mt-4 leading-relaxed justify-center">
             Smart career guidance powered by AI. Discover the right path based on your skills and future goals.
           </p>
         </div>
@@ -78,7 +76,7 @@ export default function CounselorLogin() {
 
       {/* RIGHT SIDE */}
       <div className="flex-1 flex flex-col">
-
+           
         {/* Mobile Top */}
         <div className="md:hidden relative bg-[#1a6e42] w-full pb-20">
           <div
@@ -96,27 +94,30 @@ export default function CounselorLogin() {
 
             {/* Heading */}
             <h2
-              className="text-[#1a6e42] font-extrabold text-5xl text-center md:text-left mb-2"
+              className="text-[#1a6e42] font-extrabold  text-5xl text-center md:text-left mb-2"
               style={{ fontFamily: "'Georgia', serif", fontStyle: "italic" }}
             >
-              welcome
+              Welcome
             </h2>
 
-            <p className="text-gray-400 text-base text-center md:text-left mb-10">
+            <p className="text-gray-400 text-lg text-base text-center md:text-left mb-10"
+            style={{ fontFamily: "'Georgia', serif", fontStyle: "italic" }}>
               Login in to your account to continue
             </p>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6"
+            style={{ fontFamily: "'Georgia', serif", fontStyle: "italic" }}>
 
               {/* Email */}
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+                <label className="text-lg font-semibold text-gray-500 uppercase tracking-wider pl-1">
                   Email
                 </label>
                 <input
                   type="email"
                   name="email"
+                  placeholder="Enter your email"
                   required
                   onChange={handleChange}
                   className="w-full px-6 py-3 rounded-full bg-[#d4ede0] text-gray-700 text-sm outline-none focus:bg-[#bfe0ce] transition"
@@ -125,12 +126,13 @@ export default function CounselorLogin() {
 
               {/* Password */}
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1">
+                <label className="text-lg font-semibold text-gray-500 uppercase tracking-wider pl-1">
                   Password
                 </label>
                 <input
                   type="password"
                   name="password"
+                  placeholder="Enter your password"
                   required
                   onChange={handleChange}
                   className="w-full px-6 py-3 rounded-full bg-[#d4ede0] text-gray-700 text-sm outline-none focus:bg-[#bfe0ce] transition"
