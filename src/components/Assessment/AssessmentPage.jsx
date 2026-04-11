@@ -191,7 +191,7 @@ const [loadingReport, setLoadingReport] = useState(false);
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       
       <div className="bg-white p-8 rounded-xl shadow-lg w-[500px]">
-
+ 
         {/*  COMPLETED STATE */}
       {completed ? (
         <div>
@@ -236,7 +236,7 @@ const [loadingReport, setLoadingReport] = useState(false);
                   className={`w-full text-left p-3 border rounded-lg transition 
                     ${
                       answers[currentQ] === opt
-                        ? "bg-blue-600 text-white"
+                        ? "bg-[#3E5B3F] text-[#E6DEB5]"
                         : "hover:bg-gray-100"
                     }
                     ${loadingNext ? "opacity-50 cursor-not-allowed" : ""}
@@ -259,7 +259,7 @@ const [loadingReport, setLoadingReport] = useState(false);
               onClick={handleNext}
               disabled={loadingNext}
               className={`mt-6 w-full p-3 rounded-lg text-white 
-                ${loadingNext ? "bg-gray-400" : "bg-blue-600"}
+                ${loadingNext ? "bg-[#3E5B3F]" : "bg-[#3E5B3F]"}
               `}
             >
               {loadingNext ? "Generating..." : "Next"}

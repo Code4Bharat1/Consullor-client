@@ -19,7 +19,7 @@ export default function Students() {
   });
 
   const [students, setStudents] = useState([]);
-
+  const [currentPage, setCurrentPage] = useState(1);
   const fetchStudents = async () => {
     const counselor = JSON.parse(localStorage.getItem("counselor"));
 
@@ -103,6 +103,17 @@ export default function Students() {
     return matchesSearch && matchesStatus;
   });
 
+  const ITEMS_PER_PAGE = view === "table" ? 10 : 6;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredStudents.length / ITEMS_PER_PAGE)
+  );
+
+  const pagedStudents = filteredStudents.slice(
+  (currentPage - 1) * ITEMS_PER_PAGE,
+  currentPage * ITEMS_PER_PAGE
+  );  
+
   return (
     <div>
       {/* 🔥 TOP BAR — single line */}
@@ -111,7 +122,7 @@ export default function Students() {
         {/* CREATE BUTTON */}
         <button
           onClick={() => setShowModal(true)}
-          className="bg-[#E6DEB5] text-[#1a6e42] px-4 py-2 rounded-lg whitespace-nowrap font-medium hover:bg-[#d8cf9e] transition-colors"
+          className="bg-[#3E5B3F] text-[#E6DEB5] px-4 py-2 rounded-lg whitespace-nowrap font-medium hover:bg-[#d8cf9e] hover:text-[#3E5B3F] transition-colors"
         >
           + Create Student
         </button>
@@ -121,21 +132,27 @@ export default function Students() {
           type="text"
           placeholder="Search by name, email, phone..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
           className="border px-3 py-2 rounded-lg flex-1 min-w-[200px]"
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
         />
 
         {/* STATUS FILTER */}
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
           className="border px-3 py-2 rounded-lg bg-white text-sm cursor-pointer"
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setCurrentPage(1);
+          }}
         >
           <option value="all">All Status</option>
-          <option value="notSent">Not Sent</option>
-          <option value="notStarted">Not Started</option>
-          <option value="inProgress">In Progress</option>
-          <option value="completed">Completed</option>
+          <option value="Not Sent">Not Sent</option>
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
         </select>
 
         {/* REFRESH BUTTON */}
@@ -155,7 +172,10 @@ export default function Students() {
         <div className="flex gap-1 border rounded-lg overflow-hidden">
           {/* Table icon */}
           <button
-            onClick={() => setView("table")}
+            onClick={() => {
+              setView("table");
+              setCurrentPage(1);
+            }}
             title="Table view"
             className={`px-3 py-2 transition-colors ${
               view === "table" ? "bg-[#1a6e42] text-white" : "bg-white text-gray-500 hover:bg-gray-50"
@@ -169,7 +189,10 @@ export default function Students() {
 
           {/* Card icon */}
           <button
-            onClick={() => setView("card")}
+            onClick={() => {
+              setView("card");
+              setCurrentPage(1);
+            }}
             title="Card view"
             className={`px-3 py-2 transition-colors ${
               view === "card" ? "bg-[#1a6e42] text-white" : "bg-white text-gray-500 hover:bg-gray-50"
@@ -202,7 +225,7 @@ export default function Students() {
             </thead>
 
             <tbody>
-              {filteredStudents.map((s) => (
+              {pagedStudents.map((s) => (
                 <tr key={s._id} className="border-t">
                   <td className="p-3">{s.name}</td>
                   <td>{s.email}</td>
@@ -212,15 +235,15 @@ export default function Students() {
 
                   <td>
                     <span
-                      className={`px-2 py-1 rounded text-white text-sm
+                      className={`inline-flex w-10/12 text-center mx-auto justify-center items-center gap-1.5 text-xs font-medium text-white border px-2.5 py-1 rounded-full
                       ${
-                        s.assessmentStatus === "notSent"
+                        s.assessmentStatus === "Not Sent"
                           ? "bg-gray-400"
-                          : s.assessmentStatus === "notStarted"
+                          : s.assessmentStatus === "Not Started"
                           ? "bg-yellow-500"
-                          : s.assessmentStatus === "inProgress"
+                          : s.assessmentStatus === "In Progress"
                           ? "bg-blue-500"
-                          : s.assessmentStatus === "completed"
+                          : s.assessmentStatus === "Completed"
                           ? "bg-green-500"
                           : "bg-red-500"
                       }`}
@@ -233,14 +256,14 @@ export default function Students() {
                     {!s.assessmentToken ? (
                       <button
                         onClick={() => handleSendAssessment(s._id)}
-                        className="bg-blue-600 text-white px-2 py-1 rounded"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-white border px-2.5 py-1 rounded-full bg-blue-600 w-10/12 text-center mx-auto justify-center"
                       >
                         Send
                       </button>
                     ) : (
                       <button
                         disabled
-                        className="bg-gray-400 text-white px-2 py-1 rounded"
+                        className="bg-gray-400 inline-flex items-center gap-1.5 text-xs font-medium text-white border px-2.5 py-1 rounded-full bg-blue-600 w-10/12 text-center mx-auto justify-center"
                       >
                         Sent
                       </button>
@@ -258,63 +281,163 @@ export default function Students() {
               )}
             </tbody>
           </table>
+          {totalPages > 1 && (
+  <div className="flex items-center justify-between px-4 py-3 border-t bg-white">
+    <span className="text-xs text-gray-400">
+      Page {currentPage} of {totalPages}
+    </span>
+
+    <div className="flex gap-2">
+      <button
+        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+        disabled={currentPage === 1}
+        className="w-8 h-8 border rounded flex items-center justify-center"
+      >
+        ‹
+      </button>
+
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+        <button
+          key={pg}
+          onClick={() => setCurrentPage(pg)}
+          className={`w-8 h-8 rounded ${
+            pg === currentPage
+              ? "bg-[#3E5B3F] text-white"
+              : "border"
+          }`}
+        >
+          {pg}
+        </button>
+      ))}
+
+      <button
+        onClick={() =>
+          setCurrentPage((p) => Math.min(totalPages, p + 1))
+        }
+        disabled={currentPage === totalPages}
+        className="w-8 h-8 border rounded flex items-center justify-center"
+      >
+        ›
+      </button>
+    </div>
+  </div>
+)}
         </div>
       )}
 
       {/* 🔥 CARD VIEW (MOBILE FRIENDLY) */}
-      {view === "card" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-          {filteredStudents.map((s) => (
-            <div key={s._id} className="bg-white p-4 rounded-lg shadow">
+{view === "card" && (
+  <>
+    {/* CARD GRID */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+      {pagedStudents.map((s) => (
+        <div
+          key={s._id}
+          className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+        >
+          <div className="mb-3">
+            <h3 className="font-semibold text-lg text-gray-800 truncate">
+              {s.name}
+            </h3>
+            <p className="text-sm text-gray-500 truncate">{s.email}</p>
+          </div>
 
-              <h3 className="font-bold text-lg">{s.name}</h3>
-              <p className="text-sm text-gray-600">{s.email}</p>
-              <p className="text-sm">{s.phone}</p>
-              <p className="text-sm">{s.class}</p>
-              <p className="text-sm">{s.schoolName}</p>
+          <div className="text-sm text-gray-600 space-y-1 mb-4">
+            <p><span className="font-medium">Phone:</span> {s.phone}</p>
+            <p><span className="font-medium">Class:</span> {s.class}</p>
+            <p className="truncate">
+              <span className="font-medium">School:</span> {s.schoolName}
+            </p>
+          </div>
 
-              <span
-                className={`inline-block mt-2 px-2 py-1 rounded text-white text-sm
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap
                 ${
-                  s.assessmentStatus === "notSent"
-                    ? "bg-gray-400"
-                    : s.assessmentStatus === "notStarted"
-                    ? "bg-yellow-500"
-                    : s.assessmentStatus === "inProgress"
-                    ? "bg-blue-500"
-                    : s.assessmentStatus === "completed"
-                    ? "bg-green-500"
-                    : "bg-red-500"
+                  s.assessmentStatus === "Not Sent"
+                    ? "bg-gray-200 text-gray-700"
+                    : s.assessmentStatus === "Not Started"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : s.assessmentStatus === "In Progress"
+                    ? "bg-blue-100 text-blue-700"
+                    : s.assessmentStatus === "Completed"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
                 }`}
-              >
-                {s.assessmentStatus}
-              </span>
+            >
+              {s.assessmentStatus}
+            </span>
 
-              <div className="mt-3">
-                {!s.assessmentToken ? (
-                  <button
-                    onClick={() => handleSendAssessment(s._id)}
-                    className="bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    Send
-                  </button>
-                ) : (
-                  <button
-                    disabled
-                    className="bg-gray-400 text-white px-3 py-1 rounded"
-                  >
-                    Sent
-                  </button>
-                )}
-              </div>
-            </div>
+            {!s.assessmentToken ? (
+              <button
+                onClick={() => handleSendAssessment(s._id)}
+                className="bg-[#3E5B3F] text-[#E6DEB5] px-4 py-1.5 rounded-lg"
+              >
+                Send
+              </button>
+            ) : (
+              <button
+                disabled
+                className="bg-gray-300 text-gray-600 px-4 py-1.5 rounded-lg"
+              >
+                Sent
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+
+      {filteredStudents.length === 0 && (
+        <p className="text-gray-500 text-center col-span-full">
+          No students found
+        </p>
+      )}
+    </div>
+
+    {/* ✅ PAGINATION (PUT HERE ONLY) */}
+    {totalPages > 1 && (
+      <div className="flex items-center justify-between px-4 py-3 mt-4 bg-white border rounded-lg">
+        <span className="text-xs text-gray-400">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="w-8 h-8 border rounded flex items-center justify-center"
+          >
+            ‹
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+            <button
+              key={pg}
+              onClick={() => setCurrentPage(pg)}
+              className={`w-8 h-8 rounded ${
+                pg === currentPage
+                  ? "bg-[#3E5B3F] text-white"
+                  : "border"
+              }`}
+            >
+              {pg}
+            </button>
           ))}
 
-          {filteredStudents.length === 0 && (
-            <p>No students found</p>
-          )}
+          <button
+            onClick={() =>
+              setCurrentPage((p) => Math.min(totalPages, p + 1))
+            }
+            disabled={currentPage === totalPages}
+            className="w-8 h-8 border rounded flex items-center justify-center"
+          >
+            ›
+          </button>
         </div>
-      )}
+      </div>
+    )}
+  </>
+)}
 
       {/* 🔥 MODAL (UNCHANGED LOGIC) */}
       {showModal && (
